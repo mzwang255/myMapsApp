@@ -1,5 +1,7 @@
 package com.example.wangm9557.mymapsapp;
 
+import android.*;
+import android.Manifest;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.location.Criteria;
@@ -11,6 +13,8 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
 import android.support.v4.content.ContextCompat;
+import android.util.Log;
+import android.view.View;
 
 import com.google.android.gms.identity.intents.Address;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -28,6 +32,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     private GoogleMap mMap;
     LocationManager locationManager;
+    private String mapView = "road";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,6 +42,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
+/*
+        LocationManager Stuff
 
         locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
         if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
@@ -49,6 +56,14 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             // for ActivityCompat#requestPermissions for more details.
             return;
         }
+
+        if(ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION ) != PackageManager.PERMISSION_GRANTED){
+            Log.d("MyMapsApp", "Failed Permission check 2");
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_COARSE_LOCATION},  2);
+        }
+
+        mMap.setMyLocationEnabled(true);
+
 
         if(locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)){
             locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, new LocationListener() {
@@ -63,7 +78,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                         List<android.location.Address> addressList = geocoder.getFromLocation(latitude, longitude, 1);
                         String str = addressList.get(0).getLocality();
                         str += addressList.get(0).getCountryName();
-                        mMap.addMarker(new MarkerOptions().position(latlng).title("Current Location: " + str));
+                        mMap.addMarker(new MarkerOptions().position(latlng).title("Current Location"));
                         mMap.moveCamera(CameraUpdateFactory.newLatLng(latlng));
                     } catch (IOException e) {
                         e.printStackTrace();
@@ -122,7 +137,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 }
             });
         }
-
+*/
     }
 
 
@@ -145,8 +160,35 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
        mMap.addMarker(new MarkerOptions().position(norman).title("Born Here"));
        mMap.moveCamera(CameraUpdateFactory.newLatLng(norman));
 
+        if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            // TODO: Consider calling
+            //    ActivityCompat#requestPermissions
+            // here to request the missing permissions, and then overriding
+            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+            //                                          int[] grantResults)
+            // to handle the case where the user grants the permission. See the documentation
+            // for ActivityCompat#requestPermissions for more details.
+            return;
+        }
 
+        if(ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION ) != PackageManager.PERMISSION_GRANTED){
+            Log.d("MyMapsApp", "Failed Permission check 2");
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_COARSE_LOCATION},  2);
+        }
+        mMap.setMyLocationEnabled(true);
 
     }
 
+    public void changeView(View v){
+        if(mapView.equals("road")){
+            mMap.setMapType(GoogleMap.MAP_TYPE_SATELLITE);
+            mapView = "satelite";
+        }
+
+        else if(mapView.equals("satelite")){
+            mMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
+            mapView = "road";
+        }
+
+    }
 }
