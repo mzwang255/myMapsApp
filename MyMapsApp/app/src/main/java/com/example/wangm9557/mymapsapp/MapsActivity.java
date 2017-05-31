@@ -10,6 +10,7 @@ import android.location.Geocoder;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
+import android.location.LocationProvider;
 import android.net.Network;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
@@ -40,8 +41,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private boolean isNetworkEnabled = false;
     private boolean canGetLocation = false;
     private String mapView = "road";
-    private static final long MIN_TIME_BW_UPDATES = 1000 * 15 * 1;
-    private static final long MIN_DISTANCE_CHANGE_FOR_UPDATES = 5;
+    private static final long MIN_TIME_BW_UPDATES = 1000 * 5 * 1;
+    private static final long MIN_DISTANCE_CHANGE_FOR_UPDATES = 1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -90,7 +91,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             Log.d("MyMapsApp", "Failed Permission check 2");
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_COARSE_LOCATION}, 2);
         }
-        mMap.setMyLocationEnabled(true);
+
 
     }
 
@@ -133,6 +134,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, MIN_TIME_BW_UPDATES, MIN_DISTANCE_CHANGE_FOR_UPDATES, new LocationListener() {
                 @Override
                 public void onLocationChanged(Location location) {
+                    //Output is Log.d and toast that gps is enabled and working
                     double latitude = location.getLatitude();
                     double longitude = location.getLongitude();
                     LatLng latlng = new LatLng(latitude, longitude);
@@ -140,10 +142,17 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     Geocoder geocoder = new Geocoder(getApplicationContext());
                     try {
                         List<android.location.Address> addressList = geocoder.getFromLocation(latitude, longitude, 1);
-                        String str = addressList.get(0).getLocality();
-                        str += addressList.get(0).getCountryName();
-                        mMap.addMarker(new MarkerOptions().position(latlng).title("Current Location"));
-                        mMap.moveCamera(CameraUpdateFactory.newLatLng(latlng));
+                        Log.d("myMaps","Using Network Provider");
+
+                        Toast toast = Toast.makeText(getApplicationContext(), "Using Network provider", Toast.LENGTH_SHORT);
+                        toast.show();
+
+
+                        mMap.addCircle(new CircleOptions()
+                                .center(latlng)
+                                .radius(1)
+                                .strokeColor(Color.RED)
+                                .fillColor(Color.RED));
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
@@ -151,11 +160,30 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
                 @Override
                 public void onStatusChanged(String provider, int status, Bundle extras) {
+                    //setup switch statement to check the status input parameter
+                    //LocationProvider.available >> Pit[it message Log.d
+                    //case locationProvider.outofService- Request updates from service provider
+                    //Case LocationProvider.Temporaryly Unvilaable- request updates from network provider
+                    //case default- request updates from network provider\
+                    switch(status){
+                        case 0:
+                            //OutofService
+                            break;
+                        case 1:
+                            //Temporarily unavailable
+                            break;
+                        case 2:
+                            //Available
+                            break;
+
+                    }
+
 
                 }
 
                 @Override
                 public void onProviderEnabled(String provider) {
+
 
                 }
 
@@ -176,10 +204,16 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     Geocoder geocoder = new Geocoder(getApplicationContext());
                     try {
                         List<android.location.Address> addressList = geocoder.getFromLocation(latitude, longitude, 1);
-                        String str = addressList.get(0).getLocality();
-                        str += addressList.get(0).getCountryName();
-                        mMap.addMarker(new MarkerOptions().position(latlng).title("str"));
-                        mMap.moveCamera(CameraUpdateFactory.newLatLng(latlng));
+                        Log.d("myMaps","Using GPS Provider");
+                        Toast toast = Toast.makeText(getApplicationContext(), "Using Network provider", Toast.LENGTH_SHORT);
+                        toast.show();
+                        mMap.addCircle(new CircleOptions()
+                                .center(latlng)
+                                .radius(1)
+                                .strokeColor(Color.RED)
+                                .fillColor(Color.RED));
+
+                        //relaunch the network provider requests(requestLocationUpdates Network_Provider)
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
@@ -187,7 +221,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
                 @Override
                 public void onStatusChanged(String provider, int status, Bundle extras) {
-
+                    //Output message in log.d
+                    
                 }
 
                 @Override
