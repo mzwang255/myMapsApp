@@ -13,8 +13,15 @@ android:orientation="vertical">
         <EditText
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:id="@+id/editText"
+            android:id="@+id/editText_searchWord"
             android:layout_weight="1" />
+
+        <Button
+            android:layout_width="47dp"
+            android:layout_height="wrap_content"
+            android:text="Go"
+            android:id="@+id/button_Enter"
+            android:onClick="searchLocation" />
 
         <Button
         android:layout_width="wrap_content"
