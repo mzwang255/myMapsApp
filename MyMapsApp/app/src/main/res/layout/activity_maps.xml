@@ -8,14 +8,6 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
-        <Button
-            android:id="@+id/searchButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:onClick="searchPlaces"
-            android:text="Search" />
-
         <EditText
             android:id="@+id/searchField"
             android:layout_width="wrap_content"
@@ -25,11 +17,19 @@
             android:inputType="textPersonName" />
 
         <Button
-            android:id="@+id/changeViewButton"
+            android:id="@+id/searchButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:onClick="searchPlaces"
+            android:text="S" />
+
+        <Button
+            android:id="@+id/changeViewButton"
+            android:layout_width="37dp"
+            android:layout_height="wrap_content"
             android:onClick="changeMapType"
-            android:text="Switch View" />
+            android:text="V" />
 
         <Button
             android:id="@+id/clear_markers"
@@ -37,7 +37,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:onClick="clearOverlays"
-            android:text="Clear All Markers" />
+            android:text="C" />
 
         <Button
             android:id="@+id/trackMe"
@@ -45,7 +45,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:onClick="trackMe"
-            android:text="Track Me" />
+            android:text="T" />
 
     </LinearLayout>
 
