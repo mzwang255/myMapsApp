@@ -75,7 +75,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         mMap = googleMap;
 
         //initial marker
-        LatLng birth = new LatLng(35.222569, -97.439476	);
+        LatLng birth = new LatLng(35.222569, -97.439476);
         mMap.addMarker(new MarkerOptions().position(birth).title("Born here"));
         mMap.moveCamera(CameraUpdateFactory.newLatLng(birth));
         Log.d("My Map", "home location works");
@@ -167,14 +167,12 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     }
 
     public void trackMe(View view) {
-        isTracked = true;
-        if (isTracked == true) {
+        if (isTracked == false) {
             Toast.makeText(MapsActivity.this, "Currently getting your location", Toast.LENGTH_SHORT).show();
             getLocation();
+            isTracked = true;
+        } else if (isTracked == true) {
             isTracked = false;
-        }
-        if (isTracked == false) {
-            return;
         }
 
     }
@@ -193,15 +191,21 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 e.printStackTrace();
             }
             Address address = addressList.get(0);
-            LatLng latLng = new LatLng(address.getLatitude(), address.getLongitude());
-            mMap.addMarker(new MarkerOptions().position(latLng).title("Search Results"));
-            mMap.animateCamera(CameraUpdateFactory.newLatLng(latLng));
+            if (Math.abs(address.getLatitude() - myLocation.getLatitude()) <= (5 * 0.01666) && Math.abs(address.getLatitude() - myLocation.getLatitude()) <= 5 * 0.01666) {
+                LatLng latLng = new LatLng(address.getLatitude(), address.getLongitude());
+                mMap.addMarker(new MarkerOptions().position(latLng).title("Search Results"));
+                mMap.animateCamera(CameraUpdateFactory.newLatLng(latLng));
+            } else if (address != null) {
+                Toast.makeText(this, "Not Within 5 Mile Radius", Toast.LENGTH_SHORT).show();
+            }
+
         }
     }
 
     LocationListener locationListenerGPS = new LocationListener() {
         @Override
         public void onLocationChanged(Location location) {
+            if (isTracked == false) return;
             //output a message in log.D and toast
             Log.d("MyMaps", "GPS Location has changed");
             Toast.makeText(MapsActivity.this, "GPS Location has changed", Toast.LENGTH_SHORT).show();
@@ -221,6 +225,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 // for ActivityCompat#requestPermissions for more details.
                 return;
             }
+            if (isTracked == false) return;
             locationManager.removeUpdates(locationListenerNetwork);
             dotColor = true;
 
@@ -228,11 +233,12 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         @Override
         public void onStatusChanged(String provider, int status, Bundle extras) {
+            if (isTracked == false) return;
             //setup a switch statement on status
             //case: where location provider is available (output a Log.D or toast)
             //case: location LocationProvider.OUT_OF_SERvIce-> request updates from network provider
             //case: locationProvider.TEMPORARILY_UNAVAILABLE --> request updates from network provider
-
+            if (isTracked == false) return;
             switch (status) {
                 case LocationProvider.AVAILABLE:
 
@@ -277,21 +283,34 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     LocationListener locationListenerNetwork = new LocationListener() {
         @Override
         public void onLocationChanged(Location location) {
+            if (isTracked == false) return;
             //output a message in log.D and toast
             Log.d("MyMaps", "Network Location has changed");
             Toast.makeText(MapsActivity.this, "Network Location has changed", Toast.LENGTH_SHORT).show();
 
             //drop a marker on the map (create a method called drop a marker)
+            if (isTracked == false) return;
             dropMarker(LocationManager.NETWORK_PROVIDER);
             Log.d("MyMaps", "called dropmarker() method from network");
 
             //relaunch request for network location updates (not needed since already requested in previous code)
-            //locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, MIN_TIME_BETWEEN_UPDATES, MIN_DISTANCE_CHANGE_FOR_UPDATES, locationListenerNetwork);
+            if (ActivityCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                // TODO: Consider calling
+                //    ActivityCompat#requestPermissions
+                // here to request the missing permissions, and then overriding
+                //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+                //                                          int[] grantResults)
+                // to handle the case where the user grants the permission. See the documentation
+                // for ActivityCompat#requestPermissions for more details.
+                return;
+            }
+            locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, MIN_TIME_BETWEEN_UPDATES, MIN_DISTANCE_CHANGE_FOR_UPDATES, locationListenerNetwork);
             dotColor = false;
         }
 
         @Override
         public void onStatusChanged(String provider, int status, Bundle extras) {
+            if(isTracked == false) return;
             //output a log.d and/or toast
             Log.d("MyMaps", "Network onStatusChanged called");
             Toast.makeText(MapsActivity.this, "Network onStatusChanged called", Toast.LENGTH_SHORT).show();
@@ -342,10 +361,10 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             //dotColor determines whether device is using network or GPS and changes the color accordingly
 
             if (dotColor == true) {
-                myCircle = mMap.addCircle(new CircleOptions().center(userLocation).radius(1).strokeColor(Color.RED).strokeWidth(2).fillColor(Color.MAGENTA));
+                myCircle = mMap.addCircle(new CircleOptions().center(userLocation).radius(1).strokeColor(Color.RED).strokeWidth(2).fillColor(Color.RED));
                 Log.d("MyMaps", "Red dot laid for GPS");
             } else if (dotColor == false) {
-                myCircle = mMap.addCircle(new CircleOptions().center(userLocation).radius(1).strokeColor(Color.GREEN).strokeWidth(2).fillColor(Color.BLUE));
+                myCircle = mMap.addCircle(new CircleOptions().center(userLocation).radius(1).strokeColor(Color.BLUE).strokeWidth(2).fillColor(Color.BLUE));
                 Log.d("MyMaps", "Blue dot laid for network");
             }
 
@@ -360,6 +379,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     public void clearOverlays(View v) {
         mMap.clear();
     }
+
 
 
 
