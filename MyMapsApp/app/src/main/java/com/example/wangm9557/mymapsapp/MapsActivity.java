@@ -191,7 +191,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 Toast.makeText(this, "Not Found", Toast.LENGTH_SHORT).show();
                 return;
             }
-
+            mMap.clear();
             for(int i = 0; i < addressList.size(); i++) {
                 Address address = addressList.get(i);
                 if (Math.abs(address.getLatitude() - myLocation.getLatitude()) <= (5 * 0.01666) && Math.abs(address.getLatitude() - myLocation.getLatitude()) <= 5 * 0.01666) {
